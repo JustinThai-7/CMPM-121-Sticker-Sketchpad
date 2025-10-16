@@ -3,3 +3,10 @@
   vertical-align: top;
   border: 1px solid salmon;
 }
+
+#canvas {
+  border: 1px solid black;
+  background-color: solid white;
+  filter: drop-shadow(5px 5px blue);
+  border-radius: 15px;
+}
