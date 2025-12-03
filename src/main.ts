@@ -55,6 +55,7 @@ class Line implements Drawable {
 
 // global state
 const displayList: Drawable[] = [];
+const redoList: Drawable[] = [];
 let currentLine: Line | null = null;
 
 // observer / events
@@ -93,6 +94,7 @@ canvas.addEventListener("mouseup", () => {
   if (currentLine) {
     displayList.push(currentLine);
     currentLine = null;
+    redoList.length = 0;
     canvas.dispatchEvent(drawingChanged);
   }
 });
@@ -101,6 +103,7 @@ canvas.addEventListener("mouseleave", () => {
    if (currentLine) {
     displayList.push(currentLine);
     currentLine = null;
+    redoList.length = 0;
     canvas.dispatchEvent(drawingChanged);
   }
 });
@@ -122,7 +125,30 @@ function createButton(text: string, onClick: () => void) {
 // clear
 createButton("Clear", () => {
   displayList.length = 0;
+  redoList.length = 0;
   canvas.dispatchEvent(drawingChanged);
+});
+
+// Undo
+createButton("Undo", () => {
+  if (displayList.length > 0) {
+    const lastItem = displayList.pop();
+    if (lastItem) {
+      redoList.push(lastItem);
+      canvas.dispatchEvent(drawingChanged);
+    }
+  }
+});
+
+// Redo
+createButton("Redo", () => {
+  if (redoList.length > 0) {
+    const nextItem = redoList.pop();
+    if (nextItem) {
+      displayList.push(nextItem);
+      canvas.dispatchEvent(drawingChanged);
+    }
+  }
 });
 
 // initial draw
