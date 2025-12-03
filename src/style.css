@@ -1,12 +1,28 @@
-.icon {
-  width: 64px;
-  vertical-align: top;
-  border: 1px solid salmon;
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-#canvas {
-  border: 1px solid black;
-  background-color: solid white;
-  filter: drop-shadow(5px 5px blue);
-  border-radius: 15px;
+#buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+canvas {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+}
+
+.selected {
+  background-color: #4CAF50; /* Green */
+  color: white;
 }

@@ -25,6 +25,7 @@ import { Drawable, Line } from "./types.ts";
 const displayList: Drawable[] = [];
 const redoList: Drawable[] = [];
 let currentLine: Line | null = null;
+let currentThickness = 1;
 
 // observer / events
 const drawingChanged = new Event("drawing-changed");
@@ -49,7 +50,7 @@ function redraw() {
 
 // event listeners
 canvas.addEventListener("mousedown", (e) => {
-  currentLine = new Line(e.offsetX, e.offsetY);
+  currentLine = new Line(e.offsetX, e.offsetY, currentThickness);
 });
 
 canvas.addEventListener("mousemove", (e) => {
@@ -81,14 +82,38 @@ const app = document.createElement("div");
 app.id = "app";
 document.body.appendChild(app);
 
+const buttonContainer = document.createElement("div");
+buttonContainer.id = "buttons";
+app.appendChild(buttonContainer);
+
 // button helper
 function createButton(text: string, onClick: () => void) {
   const btn = document.createElement("button");
   btn.textContent = text;
   btn.addEventListener("click", onClick);
-  app.appendChild(btn);
+  buttonContainer.appendChild(btn);
   return btn;
 }
+
+// tool buttons
+const thinButton = createButton("Thin", () => {
+  currentThickness = 1;
+  updateSelectedTool(thinButton);
+});
+
+const thickButton = createButton("Thick", () => {
+  currentThickness = 5;
+  updateSelectedTool(thickButton);
+});
+
+function updateSelectedTool(selectedBtn: HTMLButtonElement) {
+  thinButton.classList.remove("selected");
+  thickButton.classList.remove("selected");
+  selectedBtn.classList.add("selected");
+}
+
+// set default selected tool
+updateSelectedTool(thinButton);
 
 // buttons
 // clear
@@ -97,6 +122,7 @@ createButton("Clear", () => {
   redoList.length = 0;
   canvas.dispatchEvent(drawingChanged);
 });
+
 // undo button
 createButton("Undo", () => {
   if (displayList.length > 0) {
@@ -107,6 +133,7 @@ createButton("Undo", () => {
     }
   }
 });
+
 // redo button
 createButton("Redo", () => {
   if (redoList.length > 0) {
