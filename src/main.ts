@@ -149,14 +149,32 @@ const thickButton = createButton("Thick", () => {
 const stickers = ["😊", "⭐", "🦕"];
 const stickerButtons: HTMLButtonElement[] = [];
 
-for (const emoji of stickers) {
+function addSticker(emoji: string) {
   const btn = createButton(emoji, () => {
     currentEmoji = emoji;
     updateSelectedTool(btn);
-    canvas.dispatchEvent(toolMoved); // Force preview update immediately
+    canvas.dispatchEvent(toolMoved);
   });
   stickerButtons.push(btn);
+  return btn;
 }
+
+// Initialize default stickers
+for (const emoji of stickers) {
+  addSticker(emoji);
+}
+
+// Custom sticker button
+createButton("Custom Sticker", () => {
+  const text = prompt("Custom sticker text", "🧽");
+  if (text) {
+    const btn = addSticker(text);
+    // Automatically select the new sticker
+    currentEmoji = text;
+    updateSelectedTool(btn);
+    canvas.dispatchEvent(toolMoved);
+  }
+});
 
 function updateSelectedTool(selectedBtn: HTMLButtonElement) {
   thinButton.classList.remove("selected");
