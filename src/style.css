@@ -23,6 +23,6 @@ canvas {
 }
 
 .selected {
-  background-color: #4CAF50; /* Green */
+  background-color: #4caf50;
   color: white;
 }
