@@ -7,7 +7,6 @@ heading.textContent = headingText;
 document.body.appendChild(heading);
 
 // init canvas
-// init canvas
 const canvas = document.createElement("canvas");
 canvas.id = "canvas";
 canvas.width = 256;
@@ -29,7 +28,12 @@ class Line implements Drawable {
   private thickness: number;
   private color: string;
 
-  constructor(initialX: number, initialY: number, thickness: number = 1, color: string = "black") {
+  constructor(
+    initialX: number,
+    initialY: number,
+    thickness: number = 1,
+    color: string = "black",
+  ) {
     this.points.push({ x: initialX, y: initialY });
     this.thickness = thickness;
     this.color = color;
@@ -41,7 +45,7 @@ class Line implements Drawable {
 
   display(ctx: CanvasRenderingContext2D) {
     if (this.points.length === 0) return;
-    
+
     ctx.lineWidth = this.thickness;
     ctx.strokeStyle = this.color;
     ctx.beginPath();
@@ -73,7 +77,7 @@ function redraw() {
   for (const item of displayList) {
     item.display(ctx!);
   }
-  
+
   if (currentLine) {
     currentLine.display(ctx!);
   }
@@ -100,7 +104,7 @@ canvas.addEventListener("mouseup", () => {
 });
 
 canvas.addEventListener("mouseleave", () => {
-   if (currentLine) {
+  if (currentLine) {
     displayList.push(currentLine);
     currentLine = null;
     redoList.length = 0;
