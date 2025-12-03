@@ -126,14 +126,14 @@ function createButton(text: string, onClick: () => void) {
   return btn;
 }
 
+// buttons
 // clear
 createButton("Clear", () => {
   displayList.length = 0;
   redoList.length = 0;
   canvas.dispatchEvent(drawingChanged);
 });
-
-// Undo
+// undo button
 createButton("Undo", () => {
   if (displayList.length > 0) {
     const lastItem = displayList.pop();
@@ -143,8 +143,7 @@ createButton("Undo", () => {
     }
   }
 });
-
-// Redo
+// redo button
 createButton("Redo", () => {
   if (redoList.length > 0) {
     const nextItem = redoList.pop();
