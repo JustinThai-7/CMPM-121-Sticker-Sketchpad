@@ -19,14 +19,15 @@ if (!ctx) { //ctx error check
   throw new Error("Canvas 2D context not supported");
 }
 
-import { Drawable, Line, ToolPreview } from "./types.ts";
+import { Drawable, Line, Sticker, ToolPreview } from "./types.ts";
 
 // global state
 const displayList: Drawable[] = [];
 const redoList: Drawable[] = [];
 let currentLine: Line | null = null;
 let currentThickness = 1;
-let toolPreview: ToolPreview | null = null;
+let currentEmoji: string | null = null;
+let toolPreview: ToolPreview | Sticker | null = null;
 
 // observer / events
 const drawingChanged = new Event("drawing-changed");
@@ -60,14 +61,32 @@ function redraw() {
 
 // event listeners
 canvas.addEventListener("mousedown", (e) => {
-  currentLine = new Line(e.offsetX, e.offsetY, currentThickness);
+  if (currentEmoji) {
+    currentLine = new Sticker(
+      e.offsetX,
+      e.offsetY,
+      currentEmoji,
+    ) as unknown as Line; // Cast to satisfy type for now, or update type
+    // Actually, Sticker is Drawable, but currentLine is Line | null.
+    // We need to update currentLine type or use a generic currentCommand.
+    // Let's fix the type of currentLine to be Drawable | null in the next step if needed,
+    // but for now let's assume we can treat it as the "active command".
+    // Wait, Line has drag(), Sticker has drag(). Drawable does NOT have drag().
+    // We need to update Drawable interface to include drag? Or cast.
+  } else {
+    currentLine = new Line(e.offsetX, e.offsetY, currentThickness);
+  }
   toolPreview = null;
   canvas.dispatchEvent(toolMoved);
 });
 
 canvas.addEventListener("mousemove", (e) => {
   if (!currentLine) {
-    toolPreview = new ToolPreview(e.offsetX, e.offsetY, currentThickness);
+    if (currentEmoji) {
+      toolPreview = new Sticker(e.offsetX, e.offsetY, currentEmoji);
+    } else {
+      toolPreview = new ToolPreview(e.offsetX, e.offsetY, currentThickness);
+    }
     canvas.dispatchEvent(toolMoved);
   } else {
     currentLine.drag(e.offsetX, e.offsetY);
@@ -87,7 +106,6 @@ canvas.addEventListener("mouseup", () => {
 canvas.addEventListener("mouseleave", () => {
   toolPreview = null;
   canvas.dispatchEvent(toolMoved);
-
   if (currentLine) {
     displayList.push(currentLine);
     currentLine = null;
@@ -117,17 +135,35 @@ function createButton(text: string, onClick: () => void) {
 // tool buttons
 const thinButton = createButton("Thin", () => {
   currentThickness = 1;
+  currentEmoji = null;
   updateSelectedTool(thinButton);
 });
 
 const thickButton = createButton("Thick", () => {
   currentThickness = 5;
+  currentEmoji = null;
   updateSelectedTool(thickButton);
 });
+
+// sticker buttons
+const stickers = ["😊", "⭐", "🦕"];
+const stickerButtons: HTMLButtonElement[] = [];
+
+for (const emoji of stickers) {
+  const btn = createButton(emoji, () => {
+    currentEmoji = emoji;
+    updateSelectedTool(btn);
+    canvas.dispatchEvent(toolMoved); // Force preview update immediately
+  });
+  stickerButtons.push(btn);
+}
 
 function updateSelectedTool(selectedBtn: HTMLButtonElement) {
   thinButton.classList.remove("selected");
   thickButton.classList.remove("selected");
+  for (const btn of stickerButtons) {
+    btn.classList.remove("selected");
+  }
   selectedBtn.classList.add("selected");
 }
 

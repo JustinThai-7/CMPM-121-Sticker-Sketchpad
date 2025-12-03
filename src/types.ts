@@ -1,5 +1,6 @@
 export interface Drawable {
   display(ctx: CanvasRenderingContext2D): void;
+  drag?(x: number, y: number): void;
 }
 
 export class Line implements Drawable {
@@ -53,5 +54,27 @@ export class ToolPreview implements Drawable {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.thickness / 2, 0, Math.PI * 2);
     ctx.stroke();
+  }
+}
+
+export class Sticker implements Drawable {
+  private x: number;
+  private y: number;
+  private emoji: string;
+
+  constructor(x: number, y: number, emoji: string) {
+    this.x = x;
+    this.y = y;
+    this.emoji = emoji;
+  }
+
+  drag(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+
+  display(ctx: CanvasRenderingContext2D) {
+    ctx.font = "32px serif";
+    ctx.fillText(this.emoji, this.x, this.y);
   }
 }
