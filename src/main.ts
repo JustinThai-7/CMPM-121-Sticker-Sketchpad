@@ -19,18 +19,24 @@ if (!ctx) { //ctx error check
   throw new Error("Canvas 2D context not supported");
 }
 
-import { Drawable, Line } from "./types.ts";
+import { Drawable, Line, ToolPreview } from "./types.ts";
 
 // global state
 const displayList: Drawable[] = [];
 const redoList: Drawable[] = [];
 let currentLine: Line | null = null;
 let currentThickness = 1;
+let toolPreview: ToolPreview | null = null;
 
 // observer / events
 const drawingChanged = new Event("drawing-changed");
+const toolMoved = new Event("tool-moved");
 
 canvas.addEventListener("drawing-changed", () => {
+  redraw();
+});
+
+canvas.addEventListener("tool-moved", () => {
   redraw();
 });
 
@@ -46,17 +52,27 @@ function redraw() {
   if (currentLine) {
     currentLine.display(ctx!);
   }
+
+  if (toolPreview) {
+    toolPreview.display(ctx!);
+  }
 }
 
 // event listeners
 canvas.addEventListener("mousedown", (e) => {
   currentLine = new Line(e.offsetX, e.offsetY, currentThickness);
+  toolPreview = null;
+  canvas.dispatchEvent(toolMoved);
 });
 
 canvas.addEventListener("mousemove", (e) => {
-  if (!currentLine) return;
-  currentLine.drag(e.offsetX, e.offsetY);
-  canvas.dispatchEvent(drawingChanged);
+  if (!currentLine) {
+    toolPreview = new ToolPreview(e.offsetX, e.offsetY, currentThickness);
+    canvas.dispatchEvent(toolMoved);
+  } else {
+    currentLine.drag(e.offsetX, e.offsetY);
+    canvas.dispatchEvent(drawingChanged);
+  }
 });
 
 canvas.addEventListener("mouseup", () => {
@@ -69,6 +85,9 @@ canvas.addEventListener("mouseup", () => {
 });
 
 canvas.addEventListener("mouseleave", () => {
+  toolPreview = null;
+  canvas.dispatchEvent(toolMoved);
+
   if (currentLine) {
     displayList.push(currentLine);
     currentLine = null;
