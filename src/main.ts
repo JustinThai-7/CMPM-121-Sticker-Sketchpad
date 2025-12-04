@@ -75,10 +75,8 @@ canvas.addEventListener("mousedown", (e) => {
       currentEmoji,
       currentRotation,
     ) as unknown as Line; // Cast to satisfy type for now, or update type
-    
     // Randomize rotation for the next sticker
     currentRotation = Math.random() * 360;
-    
     // Actually, Sticker is Drawable, but currentLine is Line | null.
     // We need to update currentLine type or use a generic currentCommand.
     // Let's fix the type of currentLine to be Drawable | null in the next step if needed,
