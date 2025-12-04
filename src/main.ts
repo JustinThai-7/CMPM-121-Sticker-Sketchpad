@@ -1,17 +1,22 @@
 import "./style.css";
 
+// ui / controls
+const app = document.createElement("div");
+app.id = "app";
+document.body.appendChild(app);
+
 // title
 const headingText = "Sticker Sketchpad";
 const heading = document.createElement("h1");
 heading.textContent = headingText;
-document.body.appendChild(heading);
+app.appendChild(heading);
 
 // init canvas
 const canvas = document.createElement("canvas");
 canvas.id = "canvas";
-canvas.width = 256;
-canvas.height = 256;
-document.body.appendChild(canvas);
+canvas.width = 512;
+canvas.height = 512;
+app.appendChild(canvas);
 
 const ctx = canvas.getContext("2d");
 if (!ctx) { //ctx error check
@@ -114,11 +119,6 @@ canvas.addEventListener("mouseleave", () => {
   }
 });
 
-// ui / controls
-const app = document.createElement("div");
-app.id = "app";
-document.body.appendChild(app);
-
 const buttonContainer = document.createElement("div");
 buttonContainer.id = "buttons";
 app.appendChild(buttonContainer);
@@ -134,13 +134,13 @@ function createButton(text: string, onClick: () => void) {
 
 // tool buttons
 const thinButton = createButton("Thin", () => {
-  currentThickness = 1;
+  currentThickness = 2;
   currentEmoji = null;
   updateSelectedTool(thinButton);
 });
 
 const thickButton = createButton("Thick", () => {
-  currentThickness = 5;
+  currentThickness = 4;
   currentEmoji = null;
   updateSelectedTool(thickButton);
 });
@@ -226,9 +226,9 @@ createButton("Export", () => {
   const exportCtx = exportCanvas.getContext("2d");
 
   if (exportCtx) {
-    exportCtx.scale(4, 4);
+    exportCtx.scale(2, 2); // Scale 512 -> 1024
     exportCtx.fillStyle = "white";
-    exportCtx.fillRect(0, 0, 256, 256); // Fill background relative to scale
+    exportCtx.fillRect(0, 0, 512, 512); // Fill background relative to scale
 
     for (const item of displayList) {
       item.display(exportCtx);
