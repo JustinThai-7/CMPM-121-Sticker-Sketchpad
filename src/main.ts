@@ -30,8 +30,10 @@ import { Drawable, Line, Sticker, ToolPreview } from "./types.ts";
 const displayList: Drawable[] = [];
 const redoList: Drawable[] = [];
 let currentLine: Line | null = null;
-let currentThickness = 1;
+let currentThickness = 2;
 let currentEmoji: string | null = null;
+let currentColor = "black"; // Default color
+let currentRotation = 0; // Default rotation
 let toolPreview: ToolPreview | Sticker | null = null;
 
 // observer / events
@@ -71,7 +73,12 @@ canvas.addEventListener("mousedown", (e) => {
       e.offsetX,
       e.offsetY,
       currentEmoji,
+      currentRotation,
     ) as unknown as Line; // Cast to satisfy type for now, or update type
+    
+    // Randomize rotation for the next sticker
+    currentRotation = Math.random() * 360;
+    
     // Actually, Sticker is Drawable, but currentLine is Line | null.
     // We need to update currentLine type or use a generic currentCommand.
     // Let's fix the type of currentLine to be Drawable | null in the next step if needed,
@@ -79,7 +86,12 @@ canvas.addEventListener("mousedown", (e) => {
     // Wait, Line has drag(), Sticker has drag(). Drawable does NOT have drag().
     // We need to update Drawable interface to include drag? Or cast.
   } else {
-    currentLine = new Line(e.offsetX, e.offsetY, currentThickness);
+    currentLine = new Line(
+      e.offsetX,
+      e.offsetY,
+      currentThickness,
+      currentColor,
+    );
   }
   toolPreview = null;
   canvas.dispatchEvent(toolMoved);
@@ -88,9 +100,19 @@ canvas.addEventListener("mousedown", (e) => {
 canvas.addEventListener("mousemove", (e) => {
   if (!currentLine) {
     if (currentEmoji) {
-      toolPreview = new Sticker(e.offsetX, e.offsetY, currentEmoji);
+      toolPreview = new Sticker(
+        e.offsetX,
+        e.offsetY,
+        currentEmoji,
+        currentRotation,
+      );
     } else {
-      toolPreview = new ToolPreview(e.offsetX, e.offsetY, currentThickness);
+      toolPreview = new ToolPreview(
+        e.offsetX,
+        e.offsetY,
+        currentThickness,
+        currentColor,
+      );
     }
     canvas.dispatchEvent(toolMoved);
   } else {
@@ -136,13 +158,19 @@ function createButton(text: string, onClick: () => void) {
 const thinButton = createButton("Thin", () => {
   currentThickness = 2;
   currentEmoji = null;
+  // Randomize color
+  currentColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
   updateSelectedTool(thinButton);
+  canvas.dispatchEvent(toolMoved);
 });
 
 const thickButton = createButton("Thick", () => {
   currentThickness = 4;
   currentEmoji = null;
+  // Randomize color
+  currentColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
   updateSelectedTool(thickButton);
+  canvas.dispatchEvent(toolMoved);
 });
 
 // sticker buttons
@@ -152,6 +180,8 @@ const stickerButtons: HTMLButtonElement[] = [];
 function addSticker(emoji: string) {
   const btn = createButton(emoji, () => {
     currentEmoji = emoji;
+    // Randomize rotation
+    currentRotation = Math.random() * 360;
     updateSelectedTool(btn);
     canvas.dispatchEvent(toolMoved);
   });
@@ -171,6 +201,7 @@ createButton("Custom Sticker", () => {
     const btn = addSticker(text);
     // Automatically select the new sticker
     currentEmoji = text;
+    currentRotation = Math.random() * 360; // Randomize rotation
     updateSelectedTool(btn);
     canvas.dispatchEvent(toolMoved);
   }

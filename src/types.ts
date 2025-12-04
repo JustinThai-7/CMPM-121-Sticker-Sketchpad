@@ -41,19 +41,41 @@ export class ToolPreview implements Drawable {
   private x: number;
   private y: number;
   private thickness: number;
+  private color: string;
+  private emoji: string | null;
+  private rotation: number;
 
-  constructor(x: number, y: number, thickness: number) {
+  constructor(
+    x: number,
+    y: number,
+    thickness: number,
+    color: string = "black",
+    emoji: string | null = null,
+    rotation: number = 0,
+  ) {
     this.x = x;
     this.y = y;
     this.thickness = thickness;
+    this.color = color;
+    this.emoji = emoji;
+    this.rotation = rotation;
   }
 
   display(ctx: CanvasRenderingContext2D) {
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.5)"; // Semi-transparent black
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.thickness / 2, 0, Math.PI * 2);
-    ctx.stroke();
+    if (this.emoji) {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate((this.rotation * Math.PI) / 180);
+      ctx.font = "32px serif";
+      ctx.fillText(this.emoji, 0, 0);
+      ctx.restore();
+    } else {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.thickness / 2, 0, Math.PI * 2);
+      ctx.stroke();
+    }
   }
 }
 
@@ -61,11 +83,13 @@ export class Sticker implements Drawable {
   private x: number;
   private y: number;
   private emoji: string;
+  private rotation: number;
 
-  constructor(x: number, y: number, emoji: string) {
+  constructor(x: number, y: number, emoji: string, rotation: number) {
     this.x = x;
     this.y = y;
     this.emoji = emoji;
+    this.rotation = rotation;
   }
 
   drag(x: number, y: number) {
@@ -74,7 +98,11 @@ export class Sticker implements Drawable {
   }
 
   display(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate((this.rotation * Math.PI) / 180);
     ctx.font = "32px serif";
-    ctx.fillText(this.emoji, this.x, this.y);
+    ctx.fillText(this.emoji, 0, 0);
+    ctx.restore();
   }
 }
