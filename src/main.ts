@@ -218,5 +218,28 @@ createButton("Redo", () => {
   }
 });
 
+// export button
+createButton("Export", () => {
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = 1024;
+  exportCanvas.height = 1024;
+  const exportCtx = exportCanvas.getContext("2d");
+
+  if (exportCtx) {
+    exportCtx.scale(4, 4);
+    exportCtx.fillStyle = "white";
+    exportCtx.fillRect(0, 0, 256, 256); // Fill background relative to scale
+
+    for (const item of displayList) {
+      item.display(exportCtx);
+    }
+
+    const anchor = document.createElement("a");
+    anchor.href = exportCanvas.toDataURL("image/png");
+    anchor.download = "sketchpad.png";
+    anchor.click();
+  }
+});
+
 // initial draw
 canvas.dispatchEvent(drawingChanged);
